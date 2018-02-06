@@ -1,6 +1,6 @@
 package com.ruchij
 
-import com.ruchij.utils.ScalaUtils
+import com.ruchij.utils.ScalaUtils.optionSet
 
 case class Graph[A](values: Map[A, Set[A]])
 {
@@ -50,7 +50,7 @@ object Graph
     else
       for {
         neighbours <- graph.values.get(value)
-        rest <- ScalaUtils.optionSet(neighbours.map(trim(remove(graph, value), _, length - 1)))
+        rest <- optionSet(neighbours.map(trim(remove(graph, value), _, length - 1)))
 
         result = rest.foldLeft(Graph(Map(value -> neighbours))) { _.merge(_) }
       }

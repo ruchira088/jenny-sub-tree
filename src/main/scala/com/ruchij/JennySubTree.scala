@@ -1,6 +1,6 @@
 package com.ruchij
 
-import com.ruchij.utils.ScalaUtils
+import com.ruchij.utils.ScalaUtils.optionSet
 
 case class JennySubTree[A](connections: List[(A, A)], radius: Int)
 
@@ -10,7 +10,7 @@ object JennySubTree
   {
     val graph = Graph(jennySubTree.connections)
 
-      ScalaUtils.optionSet(
+      optionSet(
         graph.values.keySet
           .map(Graph.trim(graph, _, jennySubTree.radius))
       )
