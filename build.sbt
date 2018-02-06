@@ -14,6 +14,9 @@ lazy val root = (project in file("."))
   )
 
 coverageEnabled := true
+coverageExcludedPackages := "com.ruchij.App"
 
 testOptions in Test +=
   Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/test-results")
+
+addCommandAlias("testWithCoverage", "; clean; test; coverageReport")

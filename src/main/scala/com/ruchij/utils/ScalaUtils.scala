@@ -2,12 +2,12 @@ package com.ruchij.utils
 
 object ScalaUtils
 {
-  def optionSequence[A](optionList: List[Option[A]]): Option[List[A]] =
-    optionList match {
-      case Nil => Some(List.empty)
+  def optionSet[A](options: Set[Option[A]]): Option[Set[A]] =
+    options.toList match {
+      case Nil => Some(Set.empty)
       case (x :: xs) => for {
         value <- x
-        rest <- optionSequence(xs)
-      } yield value :: rest
+        rest <- optionSet(xs.toSet)
+      } yield rest + value
     }
 }

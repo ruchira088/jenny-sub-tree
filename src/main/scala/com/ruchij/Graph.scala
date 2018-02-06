@@ -1,6 +1,8 @@
 package com.ruchij
 
-case class Graph[A](values: Map[A, List[A]])
+import com.ruchij.utils.ScalaUtils
+
+case class Graph[A](values: Map[A, Set[A]])
 {
   self =>
 
@@ -13,7 +15,7 @@ case class Graph[A](values: Map[A, List[A]])
 
 object Graph
 {
-  def empty[A]: Graph[A] = Graph(Map.empty[A, List[A]])
+  def empty[A]: Graph[A] = Graph(Map.empty[A, Set[A]])
 
   def apply[A](values: List[(A, A)]): Graph[A] =
     values.foldLeft(Graph.empty[A])(add)
@@ -31,8 +33,8 @@ object Graph
 
   def add[A](graph: Graph[A], connection: (A, A)): Graph[A] =
   {
-    def addConnection(x: A, y: A): (A, List[A]) =
-      x -> graph.values.get(x).fold(List(y))(y :: _)
+    def addConnection(x: A, y: A): (A, Set[A]) =
+      x -> graph.values.get(x).fold(Set(y))(_ + y)
 
     val (a, b) = connection
 
@@ -42,11 +44,23 @@ object Graph
     Graph(graph.values + nodeA + nodeB)
   }
 
-  def maxConnectionNode[A](graph: Graph[A]): Option[(A, List[A])] =
+  def trim[A](graph: Graph[A], value: A, length: Int): Option[Graph[A]] =
+    if (length == 0 && graph.values.contains(value))
+      Some(Graph(Map(value -> Set.empty[A])))
+    else
+      for {
+        neighbours <- graph.values.get(value)
+        rest <- ScalaUtils.optionSet(neighbours.map(trim(remove(graph, value), _, length - 1)))
+
+        result = rest.foldLeft(Graph(Map(value -> neighbours))) { _.merge(_) }
+      }
+      yield result
+
+  def maxConnectionNode[A](graph: Graph[A]): Option[(A, Set[A])] =
     if (graph.isEmpty)
       None
     else
-      Some(graph.values.maxBy { case (_, neighbours) => neighbours.length })
+      Some(graph.values.maxBy { case (_, neighbours) => neighbours.size })
 
   def isIsomorphic[A, B](graphA: Graph[A], graphB: Graph[B]): Boolean =
     if (graphA.isEmpty && graphB.isEmpty)
@@ -54,7 +68,7 @@ object Graph
     else {
       val result = for {
         (a, neighboursA) <- maxConnectionNode(graphA)
-        (b, neighboursB) <- maxConnectionNode(graphB) if neighboursA.length == neighboursB.length
+        (b, neighboursB) <- maxConnectionNode(graphB) if neighboursA.size == neighboursB.size
       }
       yield isIsomorphic(Graph(graphA.values - a), Graph(graphB.values - b))
 
