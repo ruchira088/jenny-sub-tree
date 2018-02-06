@@ -3,7 +3,7 @@ package com.ruchij
 import com.ruchij.Graph.remove
 import com.ruchij.utils.ScalaUtils.optionSequence
 
-case class Node[A](value: A, neighbours: Set[Node[A]] = Set.empty[Node[A]])
+case class Node[A](value: A, neighbours: List[Node[A]] = List.empty[Node[A]])
 
 object Node
 {
@@ -11,9 +11,9 @@ object Node
     for {
       neighbours <- graph.values.get(root)
 
-      neighbourNodes <- optionSequence(neighbours.map(createNode(remove(graph, root), _)).toList)
+      neighbourNodes <- optionSequence(neighbours.map(createNode(remove(graph, root), _)))
 
-      rootNode = Node(root, neighbourNodes.toSet)
+      rootNode = Node(root, neighbourNodes)
     }
     yield rootNode
 
@@ -24,8 +24,7 @@ object Node
       Node(node.value, neighbours = node.neighbours.map(trim(_, length - 1)))
 
   def flatten[A](node: Node[A]): List[(A, A)] =
-    node.neighbours.toList.map(_.value -> node.value) ++ node.neighbours.toList.flatMap(flatten)
+    node.neighbours.map(_.value -> node.value) ++ node.neighbours.flatMap(flatten)
 
-  def createGraph[A](node: Node[A]): Graph[A] =
-    Graph(flatten(node))
+  def createGraph[A](node: Node[A]): Graph[A] = Graph(flatten(node))
 }
