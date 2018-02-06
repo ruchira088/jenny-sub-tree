@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+
+  jenny-subtree-scala:
+    build: .
+    ports:
+      - 5005:5005
+    volumes:
+      - "~/.sbt:/root/.sbt"
+      - "~/.ivy2:/root/.ivy2"
+      - ".:/opt/jenny-subtree-scala"
+      - "/opt/jenny-subtree-scala/target"
+      - "/opt/jenny-subtree-scala/project/target"
